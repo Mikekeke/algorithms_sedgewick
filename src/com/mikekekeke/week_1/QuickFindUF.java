@@ -27,11 +27,11 @@ class QuickFindUF {
     }
 }
 
-class QuickUF {
+class QuickUnionUF {
 
     private int[] id;
 
-    public QuickUF(int n) {
+    public QuickUnionUF(int n) {
         id = new int[n];
         for (int i = 0; i < id.length; i++) {
             id[i] = i;

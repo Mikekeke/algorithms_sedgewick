@@ -8,7 +8,7 @@ public class WeekOneRunner {
         UF.union(2,3);
         UF.union(1,2);
         System.out.println("UF should true: " + UF.connected(1,3));
-        QuickUF UF2 = new QuickUF(10);
+        QuickUnionUF UF2 = new QuickUnionUF(10);
         UF2.union(0,1);
         UF2.union(9,1);
         UF2.union(2,3);
