@@ -11,6 +11,22 @@ public class WeekOneRunner {
         UNS.add(new QuickUnionUF(10));
         UNS.add(new QuickUnionUFW(10));
         testAll(UNS);
+
+        QuickUnionFind QUF = new QuickUnionFind(10);
+        QUF.union(0,1);
+        QUF.union(0,2);
+        QUF.union(6,9);
+        assertEq(QUF.find(0),2);
+        QUF.union(4,6);
+        assertEq(QUF.find(0),2);
+        QUF.union(0,4);
+        assertEq(QUF.find(0),9);
+    }
+
+    public static void assertEq(int a, int b) {
+        if (a != b) {
+            throw new IllegalStateException("!Not equal: " + a + "!=" + b);
+        }
     }
 
     public static void testAll(List<QU> unions) {
@@ -23,9 +39,15 @@ public class WeekOneRunner {
             union.union(6,7);
             union.union(3,2);
             union.union(1,2);
-            System.out.println(name + " should true: " + union.connected(8,1));
-            System.out.println(name + " should true: " + union.connected(8,7));
-            System.out.println(name + " should false: " + union.connected(9,4));
+            if (!union.connected(8,1)) {
+                throw new IllegalStateException(name + ": should be connected: " + 8 + " " + 1);
+            }
+            if (!union.connected(8,7)) {
+                throw new IllegalStateException(name + ": should be connected: " + 8 + " " + 7);
+            }
+            if (union.connected(9,4)) {
+                throw new IllegalStateException(name + ": should NOT be connected: " + 9 + " " + 4);
+            }
         }
     }
 }
