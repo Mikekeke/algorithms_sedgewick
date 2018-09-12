@@ -1,6 +1,14 @@
 package com.mikekekeke.week_1;
 
-class QuickFindUF {
+import java.util.Arrays;
+
+interface QU {
+    void union(int a, int b);
+    boolean connected(int a, int b);
+}
+
+class QuickFindUF implements QU {
+    String TAG = this.getClass().getSimpleName();
 
     private int[] id;
 
@@ -27,7 +35,7 @@ class QuickFindUF {
     }
 }
 
-class QuickUnionUF {
+class QuickUnionUF  implements QU{
 
     private int[] id;
 
@@ -59,5 +67,44 @@ class QuickUnionUF {
 
     public boolean connected(int a, int b) {
         return getRootOf(a) == getRootOf(b);
+    }
+}
+
+
+class QuickUnionUFW implements QU {
+
+    private int[] id;
+    private int[] size;
+
+    public QuickUnionUFW(int n) {
+        id = new int[n];
+        size = new int[n];
+        for (int i = 0; i < id.length; i++) {
+            id[i] = i;
+            size[i] = 1;
+        }
+    }
+
+    private int getRoot(int x) {
+        while (x != id[x]) {
+            id[x] = id[id[x]]; // (almost) flattening tree
+            x = id[x];
+        }
+        return x;
+    }
+
+    public void union(int a, int b) {
+        int aRoot = getRoot(a);
+        int bRoot = getRoot(b);
+        if (aRoot == bRoot) return;
+        if (size[aRoot] > size[bRoot]) {
+            id[bRoot] = aRoot; size[aRoot] += size[bRoot];
+        } else {
+            id[aRoot] = bRoot; size[bRoot] += size[aRoot];
+        }
+    }
+
+    public boolean connected(int a, int b) {
+        return getRoot(a) == getRoot(b);
     }
 }
