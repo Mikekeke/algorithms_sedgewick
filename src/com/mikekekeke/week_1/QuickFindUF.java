@@ -1,5 +1,7 @@
 package com.mikekekeke.week_1;
 
+import java.util.Arrays;
+
 interface QU {
     void union(int a, int b);
 
@@ -157,5 +159,44 @@ class QuickUnionFind implements QU {
 
     public int find(int a) {
         return maximum[getRoot(a)];
+    }
+}
+
+class SuccDelete {
+    private int[] succs;
+    private int[] preds;
+
+    public SuccDelete(int n) {
+        succs = new int[n];
+        preds = new int[n];
+        for (int i = 0; i < n; i++) {
+            succs[i] = i == n - 1 ? -1 : i+1;
+            preds[i] = i-1;
+        }
+    }
+
+    private boolean isDeleted(int x){
+        return succs[x] == -1 && preds[x] == -1;
+    }
+
+    public void delete(int x) {
+        if (isDeleted(x)) throw new IllegalArgumentException(x + " not found");
+        int xPred = preds[x];
+        int xSucc = succs[x];
+        if (xPred != -1) succs[xPred] = xSucc;
+        if (xSucc != -1) preds[xSucc] = xPred;
+        succs[x] = -1;
+        preds[x] = -1;
+    }
+
+    public int successor(int x){
+        if (isDeleted(x)) throw new IllegalArgumentException(x + " not found");
+        int succ = succs[x];
+        return succ == -1 ? x : succ;
+    }
+
+    public void show(){
+        System.out.println(Arrays.toString(succs));
+        System.out.println(Arrays.toString(preds));
     }
 }
