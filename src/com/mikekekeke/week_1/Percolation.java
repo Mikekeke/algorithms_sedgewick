@@ -7,29 +7,25 @@ public class Percolation {
     private int opened;
     private final int gridSide;
     private final boolean[] testGrid;
-    private final WeightedQuickUnionUF wu;
-    private final int layers;
+    private final WeightedQuickUnionUF percUnion;
+    private final WeightedQuickUnionUF fullUnion;
+    private final int vTop;
+    private final int vBot;
 
     public Percolation(int n) {
         if (n <= 0) throw new IllegalArgumentException("N <= 0");
-        layers = n;
         opened = 0;
         gridSide = n;
         int realSize = n * n + 2;
+        vTop = 0;
+        vBot = realSize - 1;
         testGrid = new boolean[realSize];
-        wu = new WeightedQuickUnionUF(realSize);
+        percUnion = new WeightedQuickUnionUF(realSize);
+        fullUnion = new WeightedQuickUnionUF(realSize - 1);
         testGrid[0] = true;
         testGrid[testGrid.length - 1] = true;
         for (int i = 1; i < testGrid.length - 1; i++) {
             testGrid[i] = false;
-        }
-
-        // create virtual top and bot
-        int cnt = n;
-        while (cnt != 0) {
-            wu.union(0, cnt);
-            wu.union(realSize - 1, realSize - 1 - cnt);
-            cnt--;
         }
     }
 
@@ -40,22 +36,41 @@ public class Percolation {
     private void unionWithNeighbors(int idx, int row, int col) {
         // union with opened neighbors
         int topNbrIdx = (gridSide * (row - 2)) + col;
-        if (row - 1 > 0 && isOpen(row - 1, col)) wu.union(topNbrIdx, idx);
+        if (row - 1 > 0 && isOpen(row - 1, col)) {
+            percUnion.union(topNbrIdx, idx);
+            fullUnion.union(topNbrIdx, idx);
+        }
         int botNbrIdx = (gridSide * (row)) + col;
-        if (row + 1 <= gridSide && isOpen(row + 1, col)) wu.union(botNbrIdx, idx);
+        if (row + 1 <= gridSide && isOpen(row + 1, col)) {
+            percUnion.union(botNbrIdx, idx);
+            fullUnion.union(botNbrIdx, idx);
+        }
         int leftNbrIdx = (gridSide * (row - 1)) + col - 1;
-        if (col - 1 > 0 && isOpen(row, col - 1)) wu.union(leftNbrIdx, idx);
+        if (col - 1 > 0 && isOpen(row, col - 1)) {
+            percUnion.union(leftNbrIdx, idx);
+            fullUnion.union(leftNbrIdx, idx);
+        }
         int rightNbrIdx = (gridSide * (row - 1)) + col + 1;
-        if (col + 1 <= gridSide && isOpen(row, col + 1)) wu.union(rightNbrIdx, idx);
+        if (col + 1 <= gridSide && isOpen(row, col + 1)) {
+            percUnion.union(rightNbrIdx, idx);
+            fullUnion.union(rightNbrIdx, idx);
+        }
     }
 
     public void open(int row, int col) {
         if (row > gridSide || col > gridSide || row < 1 || col < 1) throw new IllegalArgumentException();
         if (isOpen(row, col)) return;
-        int idx = findIdx(row,col);
+        int idx = findIdx(row, col);
         testGrid[idx] = true;
         opened++;
         unionWithNeighbors(idx, row, col);
+        if (row == 1) {
+            percUnion.union(idx, vTop);
+            fullUnion.union(idx, vTop);
+        }
+        if (row == gridSide) {
+            percUnion.union(idx, vBot);
+        }
     }
 
     public boolean isOpen(int row, int col) {
@@ -65,9 +80,10 @@ public class Percolation {
     }
 
     public boolean isFull(int row, int col) {
-        if (row > gridSide || col > gridSide) throw new IllegalArgumentException();
+        if (row > gridSide || col > gridSide || row < 1 || col < 1)
+            throw new IllegalArgumentException();
         int idx = (gridSide * (row - 1)) + col;
-        return isOpen(row, col) && wu.connected(0, idx);
+        return fullUnion.connected(vTop, idx);
     }
 
     public int numberOfOpenSites() {
@@ -75,11 +91,7 @@ public class Percolation {
     }
 
     public boolean percolates() {
-        if (layers == 1) {
-            return opened > 0;
-        } else {
-            return wu.connected(0, testGrid.length - 1);
-        }
+            return percUnion.connected(vTop, vBot);
     }
 
     public static void main(String[] args) {
@@ -90,5 +102,9 @@ public class Percolation {
         percolation.open(3, 1);
         StdOut.println(percolation.isOpen(3, 1));
         StdOut.println(percolation.isFull(3, 1));
+        StdOut.println(percolation.isOpen(1, 2));
+        StdOut.println(percolation.isFull(1, 2));
+        StdOut.println(percolation.isOpen(3, 3));
+        StdOut.println(percolation.isFull(3, 3));
     }
 }

@@ -34,7 +34,7 @@ public class PercolationStats {
     }
 
     public double stddev() {
-        if(Double.isNaN(stddev)) stddev = StdStats.stddev(results) / totalSites;
+        if (Double.isNaN(stddev)) stddev = StdStats.stddev(results) / totalSites;
         return stddev;
     }
 
