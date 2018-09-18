@@ -1,4 +1,4 @@
-package com.mikekekeke.week_1;
+package com.mikekekeke.week_1.assignment;
 
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
