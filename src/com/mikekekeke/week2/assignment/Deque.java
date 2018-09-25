@@ -12,11 +12,10 @@ public class Deque<Item> implements Iterable<Item> {
     private int count;
 
     public Deque() {
-        front = 1;
         back = 1;
-        first = 1;
-        last = 2;
-        inner = (Item[]) new Object[front + 2 + back];
+        first = 0;
+        last = 1;
+        inner = (Item[]) new Object[2];
         count = 0;
 
     }
@@ -29,24 +28,39 @@ public class Deque<Item> implements Iterable<Item> {
         return count;
     }
 
-    private void resizeFront(int size) {
-        Item[] resized = (Item[]) new Object[size + inner.length];
-        for (int i = 0; i < inner.length; i++) {
-            resized[size + i] = inner[i];
+    private void resizeFront() {
+        int currSize = inner.length;
+        first = currSize+first;
+        Item[] resized = (Item[]) new Object[currSize * 2];
+        for (int i = 0; i < last; i++) {
+            resized[currSize + i] = inner[i];
         }
-        first = size;
-        last = size+last;
+        last += currSize;
         inner = resized;
     }
 
+    private void resizeBack() {
+        int currSize = inner.length;
+        back = back * 2;
+        Item[] resized = (Item[]) new Object[currSize + back];
+//        Item[] resized = (Item[]) new Object[currSize * 2];
+        for (int i = first; i < last; i++) {
+            resized[i] = inner[i];
+        }
+        inner = resized;
+    }
+
+
     public void addFirst(Item item) {
+        check(first >= -1);
+        if (first == -1) resizeFront();
         count++;
         inner[first] = item;
-        if (first == 0) resizeFront(front * 2);
         first--;
     }
 
     public void addLast(Item item) {
+        if (last == inner.length) resizeBack();
         count++;
         inner[last] = item;
         last++;
@@ -81,5 +95,9 @@ public class Deque<Item> implements Iterable<Item> {
 
     public String show() {
         return Arrays.toString(inner);
+    }
+
+    private void check(boolean condition) {
+        if(!condition) throw new IllegalStateException("Bad");
     }
 }
