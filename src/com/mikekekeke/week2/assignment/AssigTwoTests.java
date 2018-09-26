@@ -6,29 +6,28 @@ public class AssigTwoTests {
     public static void main(String[] args) {
         Deque<String> d = new Deque<>();
         StdOut.println(d.isEmpty());
-        d.addFirst("1");
-        StdOut.println(d.peekFst());
-        StdOut.println(d.peekLst());
-        StdOut.println(d.show());
-        d.addFirst("2");
-        StdOut.println(d.peekFst());
-        StdOut.println(d.peekLst());
-        StdOut.println(d.show());
-        d.addFirst("3");
-        StdOut.println(d.peekFst());
-        StdOut.println(d.peekLst());
-        StdOut.println(d.show());
-        d.addFirst("4");
-        StdOut.println(d.peekFst());
-        StdOut.println(d.peekLst());
-        StdOut.println(d.show());
-        d.addFirst("5");
-        StdOut.println(d.peekFst());
-        StdOut.println(d.peekLst());
-        StdOut.println(d.show());
-        d.addFirst("6");
-        StdOut.println(d.peekFst());
-        StdOut.println(d.peekLst());
-        StdOut.println(d.show());
+        int fadd = 2;
+        for (int i = 1; i <= fadd; i++) {
+            d.addFirst("" + i);
+//            StdOut.println(d.peekFst());
+//            StdOut.println(d.peekLst());
+            StdOut.println(d.show());
+        }
+
+        int badd = 10;
+        for (int i = 1; i <= badd; i++) {
+            d.addLast("-" + i);
+//            StdOut.println(d.peekFst());
+//            StdOut.println(d.peekLst());
+            StdOut.println(d.show());
+        }
+
+        int frem = 10;
+        for (int i = 1; i <= frem; i++) {
+            d.removeFirst();
+//            StdOut.println(d.peekFst());
+//            StdOut.println(d.peekLst());
+            StdOut.println(d.show());
+        }
     }
 }

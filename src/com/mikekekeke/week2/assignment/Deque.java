@@ -1,5 +1,7 @@
 package com.mikekekeke.week2.assignment;
 
+import edu.princeton.cs.algs4.StdOut;
+
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -12,6 +14,7 @@ public class Deque<Item> implements Iterable<Item> {
     private int count;
 
     public Deque() {
+        front = 1;
         back = 1;
         first = 0;
         last = 1;
@@ -28,39 +31,64 @@ public class Deque<Item> implements Iterable<Item> {
         return count;
     }
 
-    private void resizeFront() {
+    private void resizeFront(int newFront) {
         int currSize = inner.length;
-        first = currSize+first;
-        Item[] resized = (Item[]) new Object[currSize * 2];
+        front = newFront;
+        Item[] resized = (Item[]) new Object[newFront + currSize];
         for (int i = 0; i < last; i++) {
-            resized[currSize + i] = inner[i];
+            resized[newFront + i] = inner[i];
         }
-        last += currSize;
+        first += newFront;
+        last += newFront;
         inner = resized;
     }
 
-    private void resizeBack() {
+    private void shrinkFront(int newFront) {
+        try {
+            int currSize = inner.length;
+            front = newFront;
+            Item[] resized = (Item[]) new Object[currSize - first + newFront];
+            for (int i = first, k = 0; i < last; i++, k++) {
+                Item f = inner[i];
+                resized[k + newFront - 1] = f;
+            }
+            first -= newFront;
+            last -= newFront;
+            inner = resized;
+        } catch (Exception e) {
+            StdOut.println(" ERRR / "
+                    + inner.length +
+                    " / cnt: " + count +
+                    " / fr: " + front +
+                    " / ba: " + back +
+                    " / fst: " + first +
+                    " / lst: " + last);
+            throw e;
+        }
+
+    }
+
+    private void resizeBack(int newBack) {
         int currSize = inner.length;
-        back = back * 2;
-        Item[] resized = (Item[]) new Object[currSize + back];
+        Item[] resized = (Item[]) new Object[currSize + newBack];
 //        Item[] resized = (Item[]) new Object[currSize * 2];
         for (int i = first; i < last; i++) {
             resized[i] = inner[i];
         }
+        back = newBack;
         inner = resized;
     }
 
-
     public void addFirst(Item item) {
         check(first >= -1);
-        if (first == -1) resizeFront();
+        if (first == -1) resizeFront(front * 2);
+            inner[first] = item;
+            first--;
         count++;
-        inner[first] = item;
-        first--;
     }
 
     public void addLast(Item item) {
-        if (last == inner.length) resizeBack();
+        if (last == inner.length) resizeBack(back * 2);
         count++;
         inner[last] = item;
         last++;
@@ -68,6 +96,9 @@ public class Deque<Item> implements Iterable<Item> {
 
     public Item removeFirst() {
         count--;
+        first++;
+        inner[first] = null;
+        if (first >= count * 3) shrinkFront(first / 2);
 
         return null;
     }
@@ -86,18 +117,24 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     public Item peekFst() {
-        return inner[first+1];
+        return inner[first + 1];
     }
 
     public Item peekLst() {
-        return inner[last-1];
+        return inner[last - 1];
     }
 
     public String show() {
-        return Arrays.toString(inner);
+        return Arrays.toString(inner) + " / "
+                + inner.length +
+                " / cnt: " + count +
+                " / fr: " + front +
+                " / ba: " + back +
+                " / fst: " + first +
+                " / lst: " + last;
     }
 
     private void check(boolean condition) {
-        if(!condition) throw new IllegalStateException("Bad");
+        if (!condition) throw new IllegalStateException("Bad");
     }
 }
