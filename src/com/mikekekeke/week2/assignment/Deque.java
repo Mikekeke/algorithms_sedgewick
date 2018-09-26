@@ -44,16 +44,17 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     private void shrinkFront(int newFront) {
+        StdOut.println("Shrink front");
         try {
             int currSize = inner.length;
             front = newFront;
             Item[] resized = (Item[]) new Object[currSize - first + newFront];
-            for (int i = first, k = 0; i < last; i++, k++) {
+            for (int i = first+1, k = 0; i < last; i++, k++) {
                 Item f = inner[i];
-                resized[k + newFront - 1] = f;
+                resized[k + newFront] = f;
             }
-            first -= newFront;
-            last -= newFront;
+            first = newFront-1;
+            last = newFront + count;
             inner = resized;
         } catch (Exception e) {
             StdOut.println(" ERRR / "
@@ -67,11 +68,21 @@ public class Deque<Item> implements Iterable<Item> {
         }
 
     }
+    private void shrinkBack(int newBack) {
+        int currSize = inner.length;
+        Item[] resized = (Item[]) new Object[currSize - (currSize - last) + newBack];
+        for (int i = first+1; i < last; i++) {
+            Item f = inner[i];
+            resized[i] = f;
+        }
+        back = newBack;
+        inner = resized;
+    }
+
 
     private void resizeBack(int newBack) {
         int currSize = inner.length;
         Item[] resized = (Item[]) new Object[currSize + newBack];
-//        Item[] resized = (Item[]) new Object[currSize * 2];
         for (int i = first; i < last; i++) {
             resized[i] = inner[i];
         }
@@ -95,17 +106,27 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     public Item removeFirst() {
+        if(isEmpty()) throw new IllegalStateException("Empty deque");
         count--;
         first++;
+        Item it = inner[first];
         inner[first] = null;
         if (first >= count * 3) shrinkFront(first / 2);
+        int emptyBack = inner.length - last;
+        if (emptyBack >= count * 3) shrinkBack(emptyBack / 2);
 
-        return null;
+        return it;
     }
 
     public Item removeLast() {
         count--;
-        return null;
+        last--;
+        Item it = inner[last];
+        inner[last] = null;
+        int emptyBack = inner.length - last;
+        if (emptyBack >= count * 3) shrinkBack(emptyBack / 2);
+        if (first >= count * 3) shrinkFront(first / 2);
+        return it;
     }
 
     public Iterator<Item> iterator() {
@@ -130,8 +151,8 @@ public class Deque<Item> implements Iterable<Item> {
                 " / cnt: " + count +
                 " / fr: " + front +
                 " / ba: " + back +
-                " / fst: " + first +
-                " / lst: " + last;
+                " / fst: " + first + "(" + peekFst() +")" +
+                " / lst: " + last + "(" + peekLst() +")";
     }
 
     private void check(boolean condition) {

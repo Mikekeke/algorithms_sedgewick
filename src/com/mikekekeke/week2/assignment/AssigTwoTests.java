@@ -9,25 +9,26 @@ public class AssigTwoTests {
         int fadd = 2;
         for (int i = 1; i <= fadd; i++) {
             d.addFirst("" + i);
-//            StdOut.println(d.peekFst());
-//            StdOut.println(d.peekLst());
             StdOut.println(d.show());
         }
 
         int badd = 10;
         for (int i = 1; i <= badd; i++) {
             d.addLast("-" + i);
-//            StdOut.println(d.peekFst());
-//            StdOut.println(d.peekLst());
             StdOut.println(d.show());
         }
 
-        int frem = 10;
+        int frem = 12;
         for (int i = 1; i <= frem; i++) {
-            d.removeFirst();
-//            StdOut.println(d.peekFst());
-//            StdOut.println(d.peekLst());
+            String f = d.removeFirst();
+            StdOut.println(f);
             StdOut.println(d.show());
         }
+
+//        int brem = 12;
+//        for (int i = 1; i <= brem; i++) {
+//            d.removeLast();
+//            StdOut.println(d.show());
+//        }
     }
 }
