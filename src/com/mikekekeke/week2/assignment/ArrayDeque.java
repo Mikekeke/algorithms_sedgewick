@@ -5,6 +5,13 @@ import edu.princeton.cs.algs4.StdOut;
 import java.util.Arrays;
 import java.util.Iterator;
 
+/**
+ * My 1st attempt for deque before I finally read the specification
+ * and realized that it need to be implemented with linked list.
+ * <p>
+ * It's supposed that it can grow and shrink independently on back and front
+ * @param <Item> any
+ */
 public class ArrayDeque<Item> implements Iterable<Item> {
     private Item[] inner;
     private int front;
