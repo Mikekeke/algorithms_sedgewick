@@ -20,22 +20,38 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         lst = 0;
     }
 
+    public static void main(String[] args) {
+
+    }
+
     private int getRandomIndex() {
         return StdRandom.uniform(fst, lst);
     }
 
+    private RandomizedQueue<Item> cloneQueue() {
+        RandomizedQueue<Item> cloned = new RandomizedQueue<>();
+        Item[] clonedData = (Item[]) new Object[data.length];
+        for (int i = 0; i < data.length; i++) {
+            clonedData[i] = data[i];
+        }
+        cloned.data = clonedData;
+        cloned.n = n;
+        cloned.fst = fst;
+        cloned.lst = lst;
+        return cloned;
+    }
+
     public boolean isEmpty() {
-        if (n == 0 && (lst != 0 || fst != 0)) throw new IllegalStateException("Bad empty");
         return n == 0;
     }
 
     public int size() {
-        if (n == 0 && (lst != 0 || fst != 0)) throw new IllegalStateException("Bad size");
         return n;
     }
 
     private void resizeArray() {
-        Item[] resized = (Item[]) new Object[n * 2];
+        int newSize = n == 0 ? 1 : n * 2;
+        Item[] resized = (Item[]) new Object[newSize];
         for (int i = fst, k = 0; i < lst; i++, k++) {
             Item it = data[i];
             if (it == null) {
@@ -50,61 +66,54 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     public void enqueue(Item item) {
+        if (item == null) throw new IllegalArgumentException();
         if (lst == data.length) resizeArray();
         data[lst++] = item;
         n++;
     }
 
-
     public Item dequeue() {
-        if (n < 1) throw new NoSuchElementException("Empty queue");
-        if (data.length / 2 >= n) resizeArray();
-        Item it = null;
-        while (it == null) {
-            int idx = getRandomIndex();
+        if (isEmpty()) throw new NoSuchElementException("Empty queue");
+        int idx = getRandomIndex();
+        Item it;
+        if (idx == fst) {
+            it = data[fst];
+        } else {
             it = data[idx];
-            data[idx] = null;
+            data[idx] = data[fst];
         }
+        data[fst] = null;
         n--;
+        if (!isEmpty()) fst++;
+        if (it == null) throw new IllegalStateException("Idx = " + idx + " n = " + n);
+        if (data.length / 4 >= n) resizeArray();
         return it;
     }
 
     public Item sample() {
-        Item it = null;
-        while (it == null) {
-            it = data[getRandomIndex()];
-        }
-        return it;
+        if (n == 0) throw new NoSuchElementException();
+        return data[getRandomIndex()];
     }
 
     public Iterator<Item> iterator() {
-        return null;
+        return new Iterator<Item>() {
+            private RandomizedQueue<Item> iterQueue = RandomizedQueue.this.cloneQueue();
+
+            @Override
+            public boolean hasNext() {
+                return !iterQueue.isEmpty();
+            }
+
+            @Override
+            public Item next() {
+                if (iterQueue.isEmpty()) throw new NoSuchElementException();
+                return iterQueue.dequeue();
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
-
-    public String show() {
-        return Arrays.toString(data);
-    }
-
-    public static void main(String[] args) {
-        RandomizedQueue<Integer> rd = new RandomizedQueue<>();
-        StdOut.println("enqueue");
-        for (int i = 0; i < 2; i++) {
-            rd.enqueue(i);
-            StdOut.println(rd.show());
-
-        }
-        rd.dequeue();
-        StdOut.println("\nsample");
-        for (int i = 0; i < 7; i++) {
-            StdOut.println(rd.sample());
-        }
-        StdOut.println("\ndeque");
-        for (int i = 0; i < 2; i++) {
-            StdOut.println(rd.dequeue());
-            StdOut.println(rd.show());
-        }
-//
-
-    }
-
 }
