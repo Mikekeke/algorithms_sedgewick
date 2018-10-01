@@ -3,34 +3,8 @@ package com.mikekekeke.week2.assignment;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-/**
- * Test 8: Insert T items into queue; then iterate over queue and check
- *         that worst-case constant memory is allocated or deallocated
- *         per iterator operation.
- *   * T = 64
- *   * T = 128
- *     - failed on trial 96 of 128
- *     - when the randomized queue contains 128 objects,
- *     - with 33 objects remaining to be iterated over;
- *     - the call to next() caused a change in memory of -512 bytes
- *     - any change of more than 480 bytes fails the test
- *
- *   * T = 256
- *     - failed on trial 192 of 256
- *     - when the randomized queue contains 256 objects,
- *     - with 65 objects remaining to be iterated over;
- *     - the call to next() caused a change in memory of -1024 bytes
- *     - any change of more than 480 bytes fails the test
- *
- * ==> FAILED
- * Seems like memory change caused by array shrinking.
- * Maybe do another implementation of iterator,
- * where possible to iterate over preallocated randomized array
- */
 
 public class RandomizedQueue<Item> implements Iterable<Item> {
     private int n;
@@ -46,24 +20,27 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     public static void main(String[] args) {
+        RandomizedQueue<String> rq = new RandomizedQueue<>();
+        for (int i = 0; i < 10; i++) {
+            rq.enqueue("test-" + i);
+        }
+        Iterator<String> rqit1 = rq.iterator();
+        for (int i = 0; i < 10; i++) {
+            StdOut.println(rqit1.next());
+        }
+        rq.enqueue("end");
+        StdOut.println("***");
+        Iterator<String> rqit2 = rq.iterator();
+        for (int i = 0; i < 11; i++) {
+            StdOut.println(rqit2.next());
+        }
+        StdOut.println(rqit2.hasNext());
+        rqit2.next();
 
     }
 
     private int getRandomIndex() {
         return StdRandom.uniform(fst, lst);
-    }
-
-    private RandomizedQueue<Item> cloneQueue() {
-        RandomizedQueue<Item> cloned = new RandomizedQueue<>();
-        Item[] clonedData = (Item[]) new Object[data.length];
-        for (int i = 0; i < data.length; i++) {
-            clonedData[i] = data[i];
-        }
-        cloned.data = clonedData;
-        cloned.n = n;
-        cloned.fst = fst;
-        cloned.lst = lst;
-        return cloned;
     }
 
     public boolean isEmpty() {
@@ -121,24 +98,49 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     public Iterator<Item> iterator() {
-        return new Iterator<Item>() {
-            private RandomizedQueue<Item> iterQueue = RandomizedQueue.this.cloneQueue();
+        return new DequeIterator();
+    }
 
-            @Override
-            public boolean hasNext() {
-                return !iterQueue.isEmpty();
-            }
+    private class DequeIterator implements Iterator {
+        private int iterFst, iterLst;
+        private Item[] iterData;
+        private int iterCnt;
 
-            @Override
-            public Item next() {
-                if (iterQueue.isEmpty()) throw new NoSuchElementException();
-                return iterQueue.dequeue();
+        private DequeIterator() {
+            iterData = (Item[]) new Object[n];
+            for (int i = fst, k = 0; i < lst; i++, k++) {
+                iterData[k] = data[i];
             }
+            iterFst = 0;
+            iterLst = iterData.length;
+            iterCnt = n;
+        }
 
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
+        @Override
+        public boolean hasNext() {
+            return iterCnt != 0;
+        }
+
+        @Override
+        public Item next() {
+            if (!DequeIterator.this.hasNext()) throw new NoSuchElementException();
+            int idx = StdRandom.uniform(iterFst, iterLst);
+            Item it;
+            if (idx == iterFst) {
+                it = iterData[iterFst];
+            } else {
+                it = iterData[idx];
+                iterData[idx] = iterData[iterFst];
             }
-        };
+            iterData[iterFst] = null;
+            iterFst++;
+            iterCnt--;
+            return it;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
     }
 }
