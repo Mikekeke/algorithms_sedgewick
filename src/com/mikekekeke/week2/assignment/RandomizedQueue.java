@@ -7,14 +7,14 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class RandomizedQueue<Item> implements Iterable<Item> {
-    private int n;
+    private int items_stored;
     private Item[] data;
     private int fst;
     private int lst;
 
     public RandomizedQueue() {
         data = (Item[]) new Object[1];
-        n = 0;
+        items_stored = 0;
         fst = 0;
         lst = 0;
     }
@@ -44,15 +44,21 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     public boolean isEmpty() {
-        return n == 0;
+        return items_stored == 0;
     }
 
     public int size() {
-        return n;
+        return items_stored;
     }
 
+    /**
+     * Inner array always 2 times bigger, than amount of items currently stored
+     * When to resize determined by free space left:
+     * - when no space left - make new inner array 2 times bigger
+     * - when current items count is 1/4 of inner array length, copy all to new array which is just 2 times bigger than items amt
+     */
     private void resizeArray() {
-        int newSize = n == 0 ? 1 : n * 2;
+        int newSize = items_stored == 0 ? 1 : items_stored * 2;
         Item[] resized = (Item[]) new Object[newSize];
         for (int i = fst, k = 0; i < lst; i++, k++) {
             Item it = data[i];
@@ -63,7 +69,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             resized[k] = it;
         }
         fst = 0;
-        lst = n;
+        lst = items_stored;
         data = resized;
     }
 
@@ -71,7 +77,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (item == null) throw new IllegalArgumentException();
         if (lst == data.length) resizeArray();
         data[lst++] = item;
-        n++;
+        items_stored++;
     }
 
     public Item dequeue() {
@@ -85,15 +91,15 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             data[idx] = data[fst];
         }
         data[fst] = null;
-        n--;
+        items_stored--;
         if (!isEmpty()) fst++;
-        if (it == null) throw new IllegalStateException("Idx = " + idx + " n = " + n);
-        if (data.length / 4 >= n) resizeArray();
+        if (it == null) throw new IllegalStateException("Idx = " + idx + " items_stored = " + items_stored);
+        if (data.length / 4 >= items_stored) resizeArray();
         return it;
     }
 
     public Item sample() {
-        if (n == 0) throw new NoSuchElementException();
+        if (items_stored == 0) throw new NoSuchElementException();
         return data[getRandomIndex()];
     }
 
@@ -107,13 +113,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         private int iterCnt;
 
         private DequeIterator() {
-            iterData = (Item[]) new Object[n];
+            iterData = (Item[]) new Object[items_stored];
             for (int i = fst, k = 0; i < lst; i++, k++) {
                 iterData[k] = data[i];
             }
             iterFst = 0;
             iterLst = iterData.length;
-            iterCnt = n;
+            iterCnt = items_stored;
         }
 
         @Override
